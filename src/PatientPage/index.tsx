@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useStateValue } from "../state";
+import { setPatient, useStateValue } from "../state";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from "../constants";
 import { Patient } from "../types";
@@ -20,7 +20,7 @@ const PatientPage = () => {
           );
           console.log("fetchedPatient", fetchedPatient);
           if (fetchedPatient) {
-            dispatch({ type: "SET_PATIENT", payload: fetchedPatient });
+            dispatch(setPatient(fetchedPatient));
           }
         }
       } catch (error) {
@@ -42,7 +42,7 @@ const PatientPage = () => {
       </div>
     );
   }
-  
+
   return <div>No patient found</div>;
 };
 
