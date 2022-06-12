@@ -36,14 +36,62 @@ const PatientPage = () => {
   if (patient) {
     return (
       <div>
-        <h2>{patient.name}</h2>
+        <h2>
+          {patient.name} {patient.gender}
+        </h2>
         <p>ssn: {patient.ssn}</p>
         <p>occupation: {patient.occupation}</p>
+        <p>
+          <b>Entries</b>
+        </p>
+        {patient.entries.map((entry) => {
+          switch (entry.type) {
+            case "Hospital":
+              return (
+                <div key={entry.id}>
+                  <p>{entry.description}</p>
+                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                </div>
+              );
+            case "HealthCheck":
+              return (
+                <div key={entry.id}>
+                  <p>
+                    {entry.date} {entry.description}
+                  </p>
+                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                </div>
+              );
+            case "OccupationalHealthcare":
+              return (
+                <div key={entry.id}>
+                  <p>
+                    {entry.date} {entry.description}
+                  </p>
+                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                </div>
+              );
+          }
+        })}
       </div>
     );
   }
 
   return <div>No patient found</div>;
+};
+
+interface DiagnosisCodeListProps {
+  data: Array<string> | undefined;
+}
+
+const DiagnosisCodeList = ({ data }: DiagnosisCodeListProps) => {
+  return (
+    <ul>
+      {data?.map((code) => {
+        return <li key={code}>{code}</li>;
+      })}
+    </ul>
+  );
 };
 
 export default PatientPage;
