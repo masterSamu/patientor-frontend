@@ -1,9 +1,82 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
-import { setPatient, useStateValue } from "../state";
+import { setDiagnosis, setPatient, useStateValue } from "../state";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from "../constants";
-import { Patient } from "../types";
+import { Diagnosis, Patient } from "../types";
+import FemaleIcon from "@mui/icons-material/Female";
+import MaleIcon from "@mui/icons-material/Male";
+import TransgenderIcon from "@mui/icons-material/Transgender";
+
+interface DiagnosisCodeListProps {
+  data: Array<string> | undefined;
+}
+
+const DiagnosisCodeList = ({ data }: DiagnosisCodeListProps) => {
+  const [{ diagnosis }, dispatch] = useStateValue();
+
+  useEffect(() => {
+    const fetchDiagnosis = async () => {
+      try {
+        const { data: fetchedDiagnoses } = await axios.get<Diagnosis[]>(
+          `${apiBaseUrl}/diagnoses`
+        );
+        console.log(fetchedDiagnoses);
+        if (fetchedDiagnoses) {
+          dispatch(setDiagnosis(fetchedDiagnoses));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    void fetchDiagnosis();
+  }, [dispatch]);
+  return (
+    <ul>
+      {data?.map((code) => {
+        return (
+          <li key={code}>
+            {code}{" "}
+            <span>
+              {diagnosis.find((diagnose) => diagnose.code === code)?.name}
+            </span>
+            ;
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
+const assertNever = (value: never): never => {
+  throw new Error(
+    `Unhandled discriminated union member: ${JSON.stringify(value)}`
+  );
+};
+
+const GenderIcon = ({gender}: {gender: string}) => {
+  switch (gender) {
+    case "male":
+      return (
+        <span>
+          <MaleIcon />
+        </span>
+      );
+    case "female":
+      return (
+        <span>
+          <FemaleIcon />
+        </span>
+      );
+    case "other":
+      return (
+        <span>
+          <TransgenderIcon />
+        </span>
+      );
+  }
+  return <></>;
+};
 
 const PatientPage = () => {
   const [{ patient }, dispatch] = useStateValue();
@@ -37,7 +110,7 @@ const PatientPage = () => {
     return (
       <div>
         <h2>
-          {patient.name} {patient.gender}
+          {patient.name} <GenderIcon gender={patient.gender} />
         </h2>
         <p>ssn: {patient.ssn}</p>
         <p>occupation: {patient.occupation}</p>
@@ -71,6 +144,8 @@ const PatientPage = () => {
                   <DiagnosisCodeList data={entry.diagnosisCodes} />
                 </div>
               );
+            default:
+              return assertNever(entry);
           }
         })}
       </div>
@@ -78,20 +153,6 @@ const PatientPage = () => {
   }
 
   return <div>No patient found</div>;
-};
-
-interface DiagnosisCodeListProps {
-  data: Array<string> | undefined;
-}
-
-const DiagnosisCodeList = ({ data }: DiagnosisCodeListProps) => {
-  return (
-    <ul>
-      {data?.map((code) => {
-        return <li key={code}>{code}</li>;
-      })}
-    </ul>
-  );
 };
 
 export default PatientPage;
