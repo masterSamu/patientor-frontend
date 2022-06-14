@@ -8,6 +8,7 @@ import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 import DiagnosisList from "../components/DiagnosisList";
+import AddEntryForm, { EntryFormValues } from "./AddEntryForm";
 
 const assertNever = (value: never): never => {
   throw new Error(
@@ -67,6 +68,22 @@ const PatientPage = () => {
     }
   }, [dispatch]);
 
+  const onSubmitNewEntry = async (values: EntryFormValues) => {
+    console.log(values);
+    try {
+      if (id) {
+        const { data: updatedPatient} = await axios.post<Patient>(
+          `${apiBaseUrl}/patients/${id}/entries`,
+          values
+        );
+        console.log("upd:" ,updatedPatient);
+        dispatch(setPatient(updatedPatient));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (patient) {
     return (
       <div>
@@ -78,6 +95,7 @@ const PatientPage = () => {
         <p>
           <b>Entries</b>
         </p>
+        <AddEntryForm onSubmit={onSubmitNewEntry} />
         {patient.entries.map((entry) => {
           switch (entry.type) {
             case "Hospital":
