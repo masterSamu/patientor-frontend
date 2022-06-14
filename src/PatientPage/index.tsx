@@ -1,52 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import axios from "axios";
-import { setDiagnosis, setPatient, useStateValue } from "../state";
+import { setPatient, useStateValue } from "../state";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from "../constants";
-import { Diagnosis, Patient } from "../types";
+import { Patient } from "../types";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
-
-interface DiagnosisCodeListProps {
-  data: Array<string> | undefined;
-}
-
-const DiagnosisCodeList = ({ data }: DiagnosisCodeListProps) => {
-  const [{ diagnosis }, dispatch] = useStateValue();
-
-  useEffect(() => {
-    const fetchDiagnosis = async () => {
-      try {
-        const { data: fetchedDiagnoses } = await axios.get<Diagnosis[]>(
-          `${apiBaseUrl}/diagnoses`
-        );
-        console.log(fetchedDiagnoses);
-        if (fetchedDiagnoses) {
-          dispatch(setDiagnosis(fetchedDiagnoses));
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    void fetchDiagnosis();
-  }, [dispatch]);
-  return (
-    <ul>
-      {data?.map((code) => {
-        return (
-          <li key={code}>
-            {code}{" "}
-            <span>
-              {diagnosis.find((diagnose) => diagnose.code === code)?.name}
-            </span>
-            ;
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
+import DiagnosisList from "../components/DiagnosisList";
 
 const assertNever = (value: never): never => {
   throw new Error(
@@ -54,7 +15,7 @@ const assertNever = (value: never): never => {
   );
 };
 
-const GenderIcon = ({gender}: {gender: string}) => {
+const GenderIcon = ({ gender }: { gender: string }) => {
   switch (gender) {
     case "male":
       return (
@@ -123,25 +84,28 @@ const PatientPage = () => {
               return (
                 <div key={entry.id}>
                   <p>{entry.description}</p>
-                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                  <DiagnosisList data={entry.diagnosisCodes} />
+                  <hr></hr>
                 </div>
               );
             case "HealthCheck":
               return (
                 <div key={entry.id}>
                   <p>
-                    {entry.date} {entry.description}
+                    <i>{entry.date}</i> {entry.description}
                   </p>
-                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                  <DiagnosisList data={entry.diagnosisCodes} />
+                  <hr></hr>
                 </div>
               );
             case "OccupationalHealthcare":
               return (
                 <div key={entry.id}>
                   <p>
-                    {entry.date} {entry.description}
+                    <i>{entry.date}</i> {entry.description}
                   </p>
-                  <DiagnosisCodeList data={entry.diagnosisCodes} />
+                  <DiagnosisList data={entry.diagnosisCodes} />
+                  <hr></hr>
                 </div>
               );
             default:
