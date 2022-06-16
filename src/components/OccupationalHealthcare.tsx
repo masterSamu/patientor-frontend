@@ -1,26 +1,20 @@
-import {
-  Grid,
-  Button,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  FormLabel,
-} from "@material-ui/core";
+import { Grid, Button } from "@material-ui/core";
 import { Field, Form, Formik } from "formik";
-//import React, { useState } from "react";
 import { DiagnosisSelection, TextField } from "../AddPatientModal/FormField";
-import { Diagnosis, HealthCheckEntry, HealthCheckRating } from "../types";
+import { Diagnosis, OccupationalHealthcareEntry } from "../types";
 
-export type EntryHealthCheckForm = Omit<HealthCheckEntry, "id">;
+export type EntryOccupationalHealthcareForm = Omit<
+  OccupationalHealthcareEntry,
+  "id"
+>;
 
 interface Props {
-  onSubmit: (values: EntryHealthCheckForm) => void;
+  onSubmit: (values: EntryOccupationalHealthcareForm) => void;
   diagnosis: Diagnosis[];
-  type: "HealthCheck";
+  type: "OccupationalHealthcare";
 }
 
-const HealthCheckForm = ({ onSubmit, diagnosis, type }: Props) => {
-
+const OccupationalHealthcare = ({ onSubmit, diagnosis, type }: Props) => {
   return (
     <Formik
       initialValues={{
@@ -29,7 +23,8 @@ const HealthCheckForm = ({ onSubmit, diagnosis, type }: Props) => {
         specialist: "",
         diagnosisCodes: [],
         type: type,
-        healthCheckRating: HealthCheckRating.Healthy,
+        sickLeave: { startDate: "", endDate: "" },
+        employerName: "",
       }}
       onSubmit={onSubmit}
       validate={(values) => {
@@ -50,13 +45,13 @@ const HealthCheckForm = ({ onSubmit, diagnosis, type }: Props) => {
         if (!values.type) {
           errors.type = requiredError;
         }
-        if (!values.healthCheckRating) {
+        if (!values.sickLeave) {
           errors.healthCheckRating = requiredError;
         }
         return errors;
       }}
     >
-      {({ values, isValid, dirty, setFieldValue, setFieldTouched }) => {
+      {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
         return (
           <Form className="form ui">
             <Field
@@ -82,36 +77,26 @@ const HealthCheckForm = ({ onSubmit, diagnosis, type }: Props) => {
               setFieldTouched={setFieldTouched}
               diagnoses={Object.values(diagnosis)}
             />
-            <RadioGroup
-              value={values.healthCheckRating}
-              name="healthCheckRating"
-              onChange={(event) =>
-                setFieldValue("healthCheckRating", Number(event.target.value))
-              }
-              aria-labelledby="healtch-check-rating"
-            >
-              <FormLabel>Health check rating</FormLabel>
-              <FormControlLabel
-                value={HealthCheckRating.Healthy}
-                control={<Radio />}
-                label={"Healthy"}
-              />
-              <FormControlLabel
-                value={HealthCheckRating.LowRisk}
-                control={<Radio />}
-                label={"Low Risk"}
-              />
-              <FormControlLabel
-                value={HealthCheckRating.HighRisk}
-                control={<Radio />}
-                label={"High Risk"}
-              />
-              <FormControlLabel
-                value={HealthCheckRating.CriticalRisk}
-                control={<Radio />}
-                label={"Critical Risk"}
-              />
-            </RadioGroup>
+            <p>Sick leave</p>
+            <Field
+              label="Start date"
+              placeholder="YYYY-MM-DD"
+              name="startDate"
+              component={TextField}
+            />
+            <Field
+              label="End date"
+              placeholder="YYYY-MM-DD"
+              name="endDate"
+              component={TextField}
+            />
+            <Field
+              label="Employer name"
+              placeholder="Employer name"
+              name="employerName"
+              component={TextField}
+            />
+
             <Grid>
               <Grid item>
                 <Button
@@ -130,4 +115,4 @@ const HealthCheckForm = ({ onSubmit, diagnosis, type }: Props) => {
   );
 };
 
-export default HealthCheckForm;
+export default OccupationalHealthcare;

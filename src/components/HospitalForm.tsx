@@ -9,9 +9,10 @@ export type EntryHospitalForm = Omit<HospitalEntry, "id">;
 interface Props {
   onSubmit: (values: EntryHospitalForm) => void;
   diagnosis: Diagnosis[];
+  type: "Hospital";
 }
 
-const HospitalForm = ({ onSubmit, diagnosis }: Props) => {
+const HospitalForm = ({ onSubmit, diagnosis, type }: Props) => {
   return (
     <Formik
       initialValues={{
@@ -19,7 +20,7 @@ const HospitalForm = ({ onSubmit, diagnosis }: Props) => {
         date: "",
         specialist: "",
         diagnosisCodes: [],
-        type: "Hospital",
+        type: type,
         discharge: { date: "", criteria: "" },
       }}
       onSubmit={onSubmit}
@@ -50,12 +51,6 @@ const HospitalForm = ({ onSubmit, diagnosis }: Props) => {
       {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
         return (
           <Form className="form ui">
-            <Field
-              label="Type"
-              placeholder="Type"
-              name="type"
-              component={TextField}
-            />
             <Field
               label="Date"
               placeholder="yyyy-mm-dd"
