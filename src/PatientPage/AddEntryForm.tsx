@@ -1,114 +1,61 @@
+import React, { useState } from "react";
 import { Field, Form, Formik } from "formik";
-import { DiagnosisSelection } from "../AddPatientModal/FormField";
 import { useStateValue } from "../state";
-import { HospitalEntry } from "../types";
-import { TextField } from "../AddPatientModal/FormField";
-import { Button, Grid } from "@material-ui/core";
+
+import HospitalForm, { EntryHospitalForm } from "../components/HospitalForm";
+import HealthCheckForm, { EntryHealthCheckForm } from "../components/HealthCheckForm";
 
 interface Props {
   onSubmit: (values: EntryFormValues) => void;
 }
 
-export type EntryFormValues = Omit<HospitalEntry, "id">;
+export type EntryFormValues = EntryHealthCheckForm | EntryHospitalForm;
+
+export type FormType = "Hospital" | "HealthCheck" | "OccupationalHealthcare";
+
+const types = ["Hospital", "HealthCheck", "OccupationalHealthcare"];
 
 const AddEntryForm = ({ onSubmit }: Props) => {
   const [{ diagnosis }] = useStateValue();
+  const [selectedType, setType] = useState<FormType>("Hospital");
+
+  const handleTypeSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value: string = event.target.value;
+    if (value === "Hospital") setType(value);
+    if (value === "HealthCheck") setType(value);
+    if (value === "OccupationalHealthcare") setType(value);
+  };
 
   return (
-    <Formik
-      initialValues={{
-        description: "",
-        date: "",
-        specialist: "",
-        diagnosisCodes: [],
-        type: "Hospital",
-        discharge: { date: "", criteria: "" },
-      }}
-      onSubmit={onSubmit}
-      validate={(values) => {
-        const requiredError = "Field is required";
-        const errors: { [field: string]: string } = {};
-        if (!values.description) {
-          errors.description = requiredError;
-        }
-        if (!values.date) {
-          errors.date = requiredError;
-        }
-        if (!values.specialist) {
-          errors.specialist = requiredError;
-        }
-        if (!values.diagnosisCodes) {
-          errors.diagnosisCodes = requiredError;
-        }
-        if (!values.type) {
-          errors.type = requiredError;
-        }
-        if (!values.discharge.date || !values.discharge.criteria) {
-          errors.discharge = requiredError;
-        }
-        return errors;
-      }}
-    >
-      {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
-        return (
-          <Form className="form ui">
-            <Field
-              label="Type"
-              placeholder="Type"
-              name="type"
-              component={TextField}
-            />
-            <Field
-              label="Date"
-              placeholder="yyyy-mm-dd"
-              name="date"
-              component={TextField}
-            />
-            <Field
-              label="Specialist"
-              placeholder="Specialist"
-              name="specialist"
-              component={TextField}
-            />
-            <Field
-              label="Description"
-              placeholder="Description"
-              name="description"
-              component={TextField}
-            />
-            <DiagnosisSelection
-              setFieldValue={setFieldValue}
-              setFieldTouched={setFieldTouched}
-              diagnoses={Object.values(diagnosis)}
-            />
-            <p>Discharge</p>
-            <Field
-              label="Discharge date"
-              placeholder="YYYY-MM-DD"
-              name="discharge.date"
-              component={TextField}
-            />
-            <Field
-              label="Discharge criteria"
-              placeholder="criteria"
-              name="discharge.criteria"
-              component={TextField}
-            />
-            <Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  type="submit"
-                  disabled={!dirty || !isValid}
-                >
-                  Submit
-                </Button>
-              </Grid>
-            </Grid>
-          </Form>
-        );
-      }}
-    </Formik>
+    <>
+      <Formik
+        initialValues={{ type: "" }}
+        onSubmit={() => console.log("submit")}
+      >
+        <Form>
+          <Field
+            as="select"
+            name="type"
+            onChange={handleTypeSelection}
+            value={selectedType}
+          >
+            {types.map((type, index) => {
+              return (
+                <option value={type} key={index}>
+                  {type}
+                </option>
+              );
+            })}
+          </Field>
+        </Form>
+      </Formik>
+      {selectedType === "Hospital" && (
+        <HospitalForm onSubmit={onSubmit} diagnosis={diagnosis} />
+      )}
+      {selectedType === "HealthCheck" && (
+        <HealthCheckForm onSubmit={onSubmit} diagnosis={diagnosis} />
+      )}
+    </>
   );
 };
 
